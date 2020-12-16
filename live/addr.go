@@ -2,19 +2,19 @@ package live
 
 import (
 	"net/url"
+	"path"
 	"strings"
 )
 
-// ConnectionInfo contains everythign a client needs to conncet to the server
+// ConnectionInfo contains everything a client needs to connect to the server.
 type ConnectionInfo struct {
-	// The http URL to grafana root
+	// URL is the root Grafana HTTP URL.
 	URL string `json:"host,omitempty"`
 
-	// API key
-	Key string `json:"key,omitempty"`
+	// TODO: API KEY
 }
 
-// ToWebSocketURL converts the standard HTTP URL to the expected WS url
+// ToWebSocketURL converts the standard HTTP URL to the expected WS URL.
 func (c *ConnectionInfo) ToWebSocketURL() (string, error) {
 	u, err := url.Parse(c.URL)
 	if err != nil {
@@ -26,7 +26,7 @@ func (c *ConnectionInfo) ToWebSocketURL() (string, error) {
 	} else {
 		u.Scheme = "ws"
 	}
-	u.Path += "live/ws"
+	u.Path = path.Join(u.Path, "live", "ws")
 	u.RawQuery = "format=protobuf"
 	return u.String(), nil
 }
@@ -37,11 +37,12 @@ type ChannelAddress struct {
 	Scope string `json:"scope,omitempty"`
 
 	// Namespace meaning depends on the scope.
-	// * when grafana, namespace is a "feature"
-	// * when ds, namespace is the datasource id
+	// * when Grafana, namespace is a "feature"
+	// * when DS, namespace is the datasource ID
 	// * when plugin, namespace is the plugin name
 	Namespace string `json:"namespace,omitempty"`
 
+	// Path is the channel path.
 	// Within each namespace, the handler can process the path as needed.
 	Path string `json:"path,omitempty"`
 }
